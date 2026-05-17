@@ -121,6 +121,38 @@ Planner 可以并行委托多个 Specialist：
 规则_4:
   描述: 每个 Task 结束后立即读出输出，再决定下一步
   原因: 及时反馈，灵活调整
+
+规则_5:
+  描述: Campaign 文档按阶段创建，不一次性创建所有文档
+  原因: 保持工作流的阶段性和可追溯性
+  详细: |
+    Planner 只创建:
+    - task.md (任务定义)
+    - plan.md (执行计划)
+    
+    不创建:
+    - execution.md (由 Specialist 创建)
+    - evidence.md (由 Evaluator 创建)
+    - verdict.md (由 Evaluator 最终创建)
+
+规则_6:
+  描述: 启动时读取 memories 目录，将相关经验传递给 Specialist
+  原因: 避免重复犯错，持续改进工作流
+  详细: |
+    Planner 在开始新任务时必须：
+    1. 读取 `agentic-souls/memories/` 目录下的所有 memory 文件
+    2. 识别与当前任务相关的经验教训
+    3. 在委托任务时，将相关 memory 内容传递给 Specialist
+    
+    示例：
+    ```
+    ## 相关经验 (来自 memories)
+    
+    ### MEM-002: sub_agent artifacts 路径问题
+    - 问题: sub_agent 将文件放到错误位置
+    - 解决: 使用绝对路径
+    - 本次任务注意: 所有 artifacts 路径必须使用绝对路径
+    ```
 ```
 
 ### 禁止行为
@@ -146,6 +178,11 @@ Planner 可以并行委托多个 Specialist：
 │                     Planner 工作流程                         │
 └─────────────────────────────────────────────────────────────┘
 
+0. 读取 memories
+   - 读取 agentic-souls/memories/ 目录
+   - 识别相关经验教训
+   │
+   ▼
 1. 接收需求
    │
    ▼

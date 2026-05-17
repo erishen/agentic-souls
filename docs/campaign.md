@@ -105,6 +105,8 @@ task:
 
 ## 2. Plan（执行计划）
 
+> ⚠️ **重要**: 每个 Phase 必须包含明确的验收标准 (AC)，Evaluator 将基于 AC 进行验证。
+
 ### 定义
 
 ```yaml
@@ -117,6 +119,17 @@ plan:
     constraints: [约束条件]
     risks: [风险识别]
     
+  phases:
+    - phase_id: Phase-1
+      name: [阶段名称]
+      steps:
+        - step: [步骤描述]
+          action: [执行动作]
+      acceptance_criteria:  # 必须包含 AC
+        - id: AC-1.1
+          description: [验收标准描述]
+          verification: [验证方法]
+          
   decomposition:
     - task_id: SUB-001
       name: [子任务名称]
@@ -136,6 +149,16 @@ plan:
     estimated: [预估时间]
     milestones: [里程碑]
 ```
+
+### AC 标准格式
+
+每个 Phase 的验收标准必须包含：
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `id` | AC 唯一标识 | `AC-1.1` (Phase 1 的第 1 个 AC) |
+| `description` | 验收标准描述 | `uv.lock` 文件存在 |
+| `verification` | 验证方法 | `ls projects/lobster/uv.lock` |
 
 ### 示例
 
@@ -667,17 +690,221 @@ campaign:
 
 ## 文件存储
 
-Campaign 可以保存为 YAML 或 JSON 文件：
+Campaign 目录结构：
 
 ```
 campaigns/
-├── CAMP-001/
-│   ├── campaign.yaml      # 完整 Campaign 定义
-│   ├── task.yaml          # 任务定义
-│   ├── plan.yaml          # 执行计划
-│   ├── execution.yaml     # 执行记录
-│   ├── evidence.yaml      # 验证证据
-│   └── verdict.yaml       # 最终判决
-├── CAMP-002/
+├── 2026-05-17-task-name/           # 日期-任务名称
+│   ├── task.md                     # 任务定义
+│   ├── plan.md                     # 执行计划
+│   ├── execution.md                # 执行记录
+│   ├── evidence.md                 # 验证证据
+│   ├── verdict.md                  # 最终判决
+│   │
+│   └── artifacts/                  # 执行产物目录
+│       ├── phase-1/                # Phase 1 产物
+│       │   ├── execution.log       # 执行日志
+│       │   ├── test-output.log     # 测试输出
+│       │   └── screenshots/        # 截图（如有）
+│       │
+│       ├── phase-2/                # Phase 2 产物
+│       │   ├── execution.log
+│       │   └── ...
+│       │
+│       └── final/                  # 最终产物
+│           ├── test-results.xml    # 测试结果
+│           └── coverage-report/    # 覆盖率报告
+│
+├── 2026-05-18-another-task/
 │   └── ...
 ```
+
+### artifacts 目录说明
+
+| 目录 | 内容 | 创建者 |
+|------|------|--------|
+| `artifacts/phase-N/` | 第 N 阶段的执行产物 | Specialist |
+| `artifacts/phase-N/execution.log` | 命令执行日志 | Specialist |
+| `artifacts/phase-N/test-output.log` | 测试输出 | Specialist |
+| `artifacts/final/` | 最终产物 | Evaluator |
+
+### 日志文件格式
+
+**execution.log 格式**:
+```
+[2026-05-17 10:00:00] Phase 1 开始
+[2026-05-17 10:00:05] 执行: uv lock
+[2026-05-17 10:00:10] 输出: Resolved 42 packages
+[2026-05-17 10:00:15] 执行: uv sync
+[2026-05-17 10:00:30] 输出: Installed 42 packages
+[2026-05-17 10:00:35] Phase 1 完成
+```
+
+**test-output.log 格式**:
+```
+$ uv run pytest tests/ -v
+tests/test_login.py::test_login_success PASSED
+tests/test_login.py::test_login_invalid PASSED
+2 passed in 0.52s
+```
+
+---
+
+## 阶段性工作流（重要）
+
+> ⚠️ **关键原则**: 文档必须按阶段创建，不能一次性创建所有文档！
+
+### 工作流程图
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Planner                               │
+│  Step 1: 创建 task.md (任务定义)                              │
+│  Step 2: 创建 plan.md (执行计划)                              │
+│  Step 3: 委托 Specialist 执行 Phase 1                         │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                       Specialist                             │
+│  Step 4: 执行 Phase 1 任务                                    │
+│  Step 5: 创建/更新 execution.md (记录执行日志)                 │
+│  Step 6: 汇报完成                                             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                       Evaluator                              │
+│  Step 7: 验证 Phase 1 结果                                    │
+│  Step 8: 创建/更新 evidence.md (记录验证证据)                  │
+│  Step 9: 给出 PASS/FAIL 判决                                  │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+                    循环执行 Phase 2-N
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                       Evaluator                              │
+│  Step 10: 创建 verdict.md (最终判决)                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 文档创建时机
+
+| 文档 | 创建者 | 创建时机 | 内容 |
+|------|--------|----------|------|
+| `task.md` | Planner | Campaign 开始时 | 任务定义 |
+| `plan.md` | Planner | task.md 完成后 | 执行计划 |
+| `execution.md` | Specialist | 每个 Phase 执行时 | 执行日志（逐步追加） |
+| `evidence.md` | Evaluator | 每个 Phase 验证时 | 验证证据（逐步追加） |
+| `verdict.md` | Evaluator | 所有 Phase 完成后 | 最终判决 |
+
+### 错误示例
+
+❌ **错误做法**: 一次性创建所有文档
+```
+# 这会导致：
+# 1. 无法追踪执行过程
+# 2. 无法展示阶段性日志
+# 3. 违背工作流设计原则
+```
+
+✅ **正确做法**: 按阶段逐步创建
+```
+Phase 1 开始 → Specialist 创建 execution.md
+Phase 1 完成 → Evaluator 创建 evidence.md
+Phase 2 开始 → Specialist 追加 execution.md
+Phase 2 完成 → Evaluator 追加 evidence.md
+...
+所有 Phase 完成 → Evaluator 创建 verdict.md
+```
+
+### 日志展示要求
+
+每个阶段的日志必须包含：
+
+1. **执行日志 (execution.md)**
+   - 执行的命令
+   - 命令输出
+   - 遇到的问题
+   - 解决方案
+
+2. **验证日志 (evidence.md)**
+   - 验证命令
+   - 验证结果
+   - 通过/失败状态
+   - 证据截图或输出
+
+---
+
+## Memories（经验记录）
+
+> ⚠️ **重要**: Planner 在开始新任务时必须读取 memories，避免重复犯错！
+
+### 目录结构
+
+```
+agentic-souls/
+└── memories/
+    ├── 001-campaign-workflow-issue.md    # Campaign 工作流问题
+    ├── 002-subagent-artifacts-path-issue.md  # sub_agent 路径问题
+    └── ...                                # 更多经验记录
+```
+
+### Memory 文件格式
+
+```markdown
+# Memory: [问题标题]
+
+## 问题 ID
+`MEM-XXX`
+
+## 发现时间
+YYYY-MM-DD
+
+## 问题描述
+[问题现象和影响]
+
+## 根因分析
+[问题根因]
+
+## 解决方案
+[解决方案]
+
+## 教训总结
+[教训总结]
+
+## 后续行动
+- [ ] 需要更新的文档
+- [ ] 需要添加的规则
+```
+
+### 使用方式
+
+**Planner 在开始新任务时**：
+
+1. 读取 `agentic-souls/memories/` 目录下的所有 memory 文件
+2. 识别与当前任务相关的经验教训
+3. 在委托任务时，将相关 memory 内容传递给 Specialist
+
+**示例**：
+
+```markdown
+## 相关经验 (来自 memories)
+
+### MEM-002: sub_agent artifacts 路径问题
+- 问题: sub_agent 将文件放到错误位置
+- 解决: 使用绝对路径
+- 本次任务注意: 所有 artifacts 路径必须使用绝对路径
+
+### MEM-001: Campaign 工作流问题
+- 问题: 一次性创建所有文档
+- 解决: 按阶段创建文档
+- 本次任务注意: 只创建 task.md 和 plan.md
+```
+
+### Memory 触发条件
+
+在以下情况下创建新的 memory：
+
+1. **发现新问题** - 遇到之前未记录的问题
+2. **找到新解决方案** - 发现更好的解决方法
+3. **工作流改进** - 优化工作流程
+4. **工具使用经验** - 总结工具使用技巧

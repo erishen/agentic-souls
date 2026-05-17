@@ -32,6 +32,9 @@ agentic-souls/
 │   ├── python-code.md       # Python 代码实现
 │   └── test-writing.md      # 测试编写
 │
+├── memories/                # 问题记录和解决方案
+│   └── 001-campaign-workflow-issue.md  # 示例
+│
 ├── campaigns/               # Campaign 存储
 │   └── .gitkeep
 │

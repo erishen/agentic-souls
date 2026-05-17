@@ -109,6 +109,42 @@ Specialist 以 **sub_agent** 方式执行，具有以下特点：
 规则_3:
   描述: 完成后立即汇报，说清楚做了什么、产物在哪、是否需要 Planner 关注
   原因: 及时反馈，便于 Planner 决策
+
+规则_4:
+  描述: 执行任务时创建/更新 execution.md 和 artifacts/ 目录
+  原因: 保持执行过程的可追溯性
+  详细: |
+    Specialist 职责:
+    - 每个 Phase 开始时创建 execution.md
+    - 创建 artifacts/phase-N/ 目录
+    - 将命令执行日志写入 artifacts/phase-N/execution.log
+    - 将测试输出写入 artifacts/phase-N/test-output.log
+    - 记录遇到的问题和解决方案
+    - 每个 Phase 完成后追加执行记录
+
+    目录结构:
+    artifacts/
+    ├── phase-1/
+    │   ├── execution.log       # 命令执行日志
+    │   └── test-output.log     # 测试输出
+    ├── phase-2/
+    │   └── ...
+    └── final/                  # 最终产物
+
+规则_5:
+  描述: 使用绝对路径创建 artifacts 文件
+  原因: sub_agent 独立进程执行，相对路径可能解析错误
+  详细: |
+    在任务描述中必须明确指定：
+    - artifacts 目录的绝对路径
+    - 输出文件的绝对路径
+    
+    示例：
+    - ✅ 正确: `/Users/xxx/InvestKit/campaigns/xxx/artifacts/phase-1/execution.log`
+    - ❌ 错误: `artifacts/phase-1/execution.log`
+    
+    原因：sub_agent 以独立进程执行，工作目录可能与 Planner 不同，
+    相对路径会解析到错误的位置。
 ```
 
 ### 禁止行为
