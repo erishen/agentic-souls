@@ -238,21 +238,20 @@ Evaluator 必须独立验证，不信任 Planner 的陈述：
 4. **证据留存**: 所有验证结果保存到 evidence/
 5. **持续改进**: 根据反馈优化工作流
 
-## 与 InvestKit 集成
+## 与项目集成
 
-Agentic Souls 可以与 InvestKit 项目深度集成：
+Agentic Souls 可以与任何项目集成使用：
 
 ```yaml
-集成点:
-  - asset-lens: 使用工作流开发新功能
-  - investkit-e2e: 使用工作流编写测试
-  - ts-demo: 使用工作流进行代码审查
+集成方式:
+  1. 作为独立项目使用
+  2. 在项目中引用 souls/ 目录
+  3. 自定义 workflows 和 skills
 ```
 
 ## 参考
 
-- [Agentic SDLC 架构文档](../docs/agentic_sdlc_for_asset_lens_architecture.md)
-- [InvestKit 主项目](../README.md)
+- [Campaign 定义](docs/campaign.md)
 
 ## License
 
