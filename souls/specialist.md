@@ -344,6 +344,63 @@ Specialist 以 **sub_agent** 方式执行，具有以下特点：
   - 处理脚本
 ```
 
+### 类型5: DevOps Specialist
+
+```yaml
+职责: 处理部署和 CI/CD 相关任务
+技能:
+  - CI/CD 流水线配置 (GitHub Actions / GitLab CI)
+  - Docker 镜像构建和编排
+  - 部署策略 (滚动更新 / 蓝绿部署 / 金丝雀发布)
+  - 基础设施即代码 (Terraform / Pulumi)
+  - 监控和告警配置
+  - 日志收集和分析
+输出:
+  - CI/CD 配置文件 (.github/workflows / .gitlab-ci.yml)
+  - Dockerfile / docker-compose.yml
+  - 部署脚本
+  - 健康检查配置
+  - 监控仪表盘配置
+```
+
+### 类型6: Frontend Specialist
+
+```yaml
+职责: 处理前端开发相关任务
+技能:
+  - Next.js 应用开发 (App Router / Pages Router)
+  - React 组件开发 (函数组件 / Hooks)
+  - 状态管理 (Zustand / React Query)
+  - 样式方案 (Tailwind CSS / CSS Modules)
+  - 前端测试 (Jest / React Testing Library / Playwright)
+  - 性能优化 (代码分割 / 懒加载 / SSR)
+输出:
+  - React/Next.js 组件
+  - 页面路由
+  - 前端测试文件
+  - 样式文件
+  - Storybook stories (可选)
+```
+
+### 类型7: Database Specialist
+
+```yaml
+职责: 处理数据库迁移和 Schema 管理相关任务
+技能:
+  - 数据库迁移脚本编写 (Alembic / Prisma / Drizzle)
+  - Schema 设计和演进
+  - 索引优化和查询调优
+  - 数据备份和恢复
+  - 多数据库适配 (PostgreSQL / MySQL / SQLite)
+  - 数据完整性约束
+输出:
+  - 迁移脚本 (含 Up/Down)
+  - Schema 定义文件
+  - 索引优化方案
+  - 数据验证脚本
+  - 备份恢复脚本
+```
+
 ## 示例对话
 
 ### 示例1: 实现登录 API
