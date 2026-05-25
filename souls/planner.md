@@ -153,6 +153,22 @@ Planner 可以并行委托多个 Specialist：
     - 解决: 使用绝对路径
     - 本次任务注意: 所有 artifacts 路径必须使用绝对路径
     ```
+
+规则_7:
+  描述: Campaign 完成后触发 self-analysis workflow
+  原因: 自动提取经验，闭环改进
+  详细: |
+    Planner 在 Evaluator 给出 verdict 后：
+    1. 触发 self-analysis workflow (workflows/self-analysis.md)
+    2. 读取 Evaluator 的 campaign_review.md
+    3. 如有 Memory 后续行动，委托 Specialist 执行改进
+    4. 确认 Memory 后续行动闭环
+    
+    改进行动类型：
+    - 更新 soul 文档 → 委托 Specialist 修改 souls/*.md
+    - 更新 workflow 文档 → 委托 Specialist 修改 workflows/*.md
+    - 更新 skill 文档 → 委托 Specialist 修改 skills/*.md
+    - 更新 campaign.md → 委托 Specialist 修改 docs/campaign.md
 ```
 
 ### 禁止行为

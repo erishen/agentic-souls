@@ -62,6 +62,6 @@ Phase 2 完成 → Evaluator 追加 evidence.md
 
 ## 后续行动
 
-- [ ] 在 planner.md 中添加"不要一次性创建所有文档"的规则
-- [ ] 在 specialist.md 中添加"创建 execution.md"的职责说明
-- [ ] 在 evaluator.md 中添加"创建 evidence.md 和 verdict.md"的职责说明
+- [x] 在 planner.md 中添加"不要一次性创建所有文档"的规则 (2026-05-17 完成，见规则_5)
+- [x] 在 specialist.md 中添加"创建 execution.md"的职责说明 (2026-05-17 完成)
+- [x] 在 evaluator.md 中添加"创建 evidence.md 和 verdict.md"的职责说明 (2026-05-17 完成，见规则_4)

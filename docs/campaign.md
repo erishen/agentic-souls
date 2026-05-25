@@ -908,3 +908,38 @@ YYYY-MM-DD
 2. **找到新解决方案** - 发现更好的解决方法
 3. **工作流改进** - 优化工作流程
 4. **工具使用经验** - 总结工具使用技巧
+
+### Self-Analysis 自动触发
+
+> ⚠️ **重要**: Campaign 完成后自动触发 self-analysis workflow，无需手动操作。
+
+```yaml
+触发时机: Campaign verdict 生成后
+执行流程: workflows/self-analysis.md
+```触发者: Planner (在接收 verdict 后自动启动)
+
+流程:
+  1. Evaluator 执行 Campaign 回顾 (Phase 1)
+  2. Evaluator 提取经验，创建/更新 Memory (Phase 2)
+  3. Planner 委托 Specialist 执行改进 (Phase 3)
+  4. Evaluator 验证改进闭环 (Phase 4)
+
+约束:
+  - Self-Analysis 不阻塞交付
+  - 改进行动可异步执行
+  - 只记录真正有价值的经验
+```
+
+### Memory 闭环规则
+
+```yaml
+后续行动状态:
+  - [ ] 待执行
+  - [x] 已完成 (YYYY-MM-DD)
+  - [~] 无法完成 (原因: xxx)
+
+闭环要求:
+  - 每个 Memory 的后续行动必须在3次 Campaign 内闭环
+  - 闭环 = 对应文档已更新 + TODO 标记为 [x]
+  - 超期未闭环的行动需在 self-analysis 中重新评估
+```

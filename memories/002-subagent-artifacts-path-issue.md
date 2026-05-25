@@ -78,6 +78,6 @@ mv InvestKit/artifacts/phase-3 InvestKit/campaigns/xxx/artifacts/
 
 ## 后续行动
 
-- [ ] 更新 `souls/specialist.md` 添加绝对路径规则
-- [ ] 更新 `docs/campaign.md` 说明 artifacts 路径要求
-- [ ] 在 Planner 任务描述模板中添加路径规范
+- [x] 更新 `souls/specialist.md` 添加绝对路径规则 (2026-05-17 完成)
+- [x] 更新 `docs/campaign.md` 说明 artifacts 路径要求 (2026-05-17 完成)
+- [x] 在 Planner 任务描述模板中添加路径规范 (2026-05-17 完成，见 planner.md 规则_7)
