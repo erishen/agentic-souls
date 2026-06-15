@@ -38,8 +38,8 @@ mv InvestKit/artifacts/phase-3 InvestKit/campaigns/xxx/artifacts/
 ```markdown
 ## 执行要求
 
-1. 创建 `/Users/erishen/Workspace/CNB/individular-invest/InvestKit/campaigns/2026-05-17-project-improvements/artifacts/phase-2/` 目录
-2. 将执行日志写入 `/Users/erishen/Workspace/CNB/individular-invest/InvestKit/campaigns/2026-05-17-project-improvements/artifacts/phase-2/execution.log`
+1. 创建 `$PROJECT_ROOT/campaigns/2026-05-17-project-improvements/artifacts/phase-2/` 目录
+2. 将执行日志写入 `$PROJECT_ROOT/campaigns/2026-05-17-project-improvements/artifacts/phase-2/execution.log`
 ```
 
 ### 文档改进
