@@ -52,9 +52,6 @@ agentic-souls/
 │   ├── 004-self-analysis-workflow.md
 │   └── 005-investment-advice-framework.md
 │
-├── campaigns/               # Campaign 存储
-│   └── .gitkeep
-│
 └── docs/                    # 文档
     └── campaign.md         # Campaign 定义
 ```
@@ -72,12 +69,19 @@ agentic-souls/
 
 ### Evaluator（评审官）
 
-- **职责**: 独立验证验收标准(AC)是否达成
+- **职责**: 独立验证验收标准(AC)是否达成 + 发现 AC 未覆盖的问题
 - **约束**: 不帮忙、不给建议、只输出判决
 - **核心规则**:
   1. 不信任 Planner 的陈述，自己动手验证
-  2. 不发现证据不给 PASS，去读文件、跑命令
+  2. 自行运行验证工具（pytest/ruff/playwright）获取一手证据，不接受 Planner 转述的输出
   3. 不在职责范围内给建议，只输出判决
+  4. 独立发现 Planner 未覆盖的问题（安全性、边界情况、代码质量）
+- **判决类型**: PASS / PARTIAL / FAIL / BLOCKED
+- **重试机制**:
+  - PASS → 交付完成
+  - PARTIAL → 局部重试（Specialist 仅修复问题部分，最多 3 次）
+  - FAIL → 全量重来（Planner 重新分解任务，最多 2 次）
+  - BLOCKED → 上报用户
 
 ### Specialist（实施者）
 
@@ -105,11 +109,11 @@ User Request
      │
      ▼
 ┌─────────────┐
-│  Evaluator  │ ─── 独立验证、输出判决
+│  Evaluator  │ ─── 独立验证 + 独立发现
 └─────────────┘
      │
      ▼
-  PASS/FAIL
+  PASS / PARTIAL / FAIL / BLOCKED
 ```
 
 ## 使用方法
@@ -121,6 +125,12 @@ User Request
 - **新功能开发**: `workflows/feature-development.md`
 - **Bug 修复**: `workflows/bug-fix.md`
 - **代码审查**: `workflows/code-review.md`
+- **代码重构**: `workflows/refactoring.md`
+- **数据迁移**: `workflows/data-migration.md`
+- **依赖升级**: `workflows/dependency-upgrade.md`
+- **部署发布**: `workflows/deployment.md`
+- **紧急修复**: `workflows/hotfix.md`
+- **自我分析**: `workflows/self-analysis.md`
 
 ### 2. 加载角色
 

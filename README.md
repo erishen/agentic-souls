@@ -4,7 +4,7 @@
 
 # Agentic Souls
 
-> Document-driven AI workflow system based on a three-role architecture
+> Document-driven AI workflow system based on Agentic SDLC three-role architecture
 
 ## Overview
 
@@ -52,9 +52,6 @@ agentic-souls/
 │   ├── 004-self-analysis-workflow.md
 │   └── 005-investment-advice-framework.md
 │
-├── campaigns/               # Campaign storage
-│   └── .gitkeep
-│
 └── docs/                    # Documentation
     └── campaign.md         # Campaign definition
 ```
@@ -72,12 +69,19 @@ agentic-souls/
 
 ### Evaluator
 
-- **Responsibility**: Independently verify whether acceptance criteria (AC) are met
+- **Responsibility**: Independently verify whether acceptance criteria (AC) are met + discover issues beyond AC
 - **Constraint**: No help, no suggestions, only verdicts
 - **Core Rules**:
   1. Don't trust Planner's statements; verify independently
-  2. Don't issue PASS without evidence — read files, run commands
+  2. Run verification tools (pytest/ruff/playwright) to obtain first-hand evidence, never accept Planner's output
   3. Only output verdicts within scope; no suggestions
+  4. Independently discover issues not covered by Planner's AC (security, edge cases, code quality)
+- **Verdicts**: PASS / PARTIAL / FAIL / BLOCKED
+- **Retry Mechanism**:
+  - PASS → Delivery complete
+  - PARTIAL → Local retry (Specialist fixes only the issue, max 3 retries)
+  - FAIL → Full redo (Planner re-decomposes tasks, max 2 retries)
+  - BLOCKED → Escalate to user
 
 ### Specialist
 
@@ -105,11 +109,11 @@ User Request
      │
      ▼
 ┌─────────────┐
-│  Evaluator  │ ── Independent verification, verdict
+│  Evaluator  │ ── Independent verification + independent discovery
 └─────────────┘
      │
      ▼
-  PASS/FAIL
+  PASS / PARTIAL / FAIL / BLOCKED
 ```
 
 ## Usage
@@ -121,6 +125,12 @@ Choose the appropriate workflow for your task type:
 - **Feature Development**: `workflows/feature-development.md`
 - **Bug Fix**: `workflows/bug-fix.md`
 - **Code Review**: `workflows/code-review.md`
+- **Code Refactoring**: `workflows/refactoring.md`
+- **Data Migration**: `workflows/data-migration.md`
+- **Dependency Upgrade**: `workflows/dependency-upgrade.md`
+- **Deployment & Release**: `workflows/deployment.md`
+- **Hotfix / Emergency Fix**: `workflows/hotfix.md`
+- **Self-Analysis**: `workflows/self-analysis.md`
 
 ### 2. Load Role
 

@@ -67,9 +67,13 @@ Evaluator 以 **sub_agent** 方式执行，确保独立性：
 │                  Evaluator (sub_agent)                       │
 │                                                              │
 │  1. 接收产物列表和 AC                                         │
-│  2. 独立验证每个 AC                                           │
-│  3. 收集证据                                                  │
-│  4. 输出判决                                                  │
+│  2. 独立运行验证工具获取一手证据                                │
+│     - pytest: 单元测试 / 集成测试                              │
+│     - ruff / eslint: 代码规范检查                             │
+│     - playwright: E2E 功能验证                                │
+│     - mypy / tsc: 类型检查                                    │
+│  3. 独立发现 Planner 未覆盖的问题                              │
+│  4. 输出判决 + 证据 + 独立发现                                 │
 │  5. 终止                                                      │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -77,6 +81,13 @@ Evaluator 以 **sub_agent** 方式执行，确保独立性：
                               │
                               ▼
                     Planner 接收判决
+                              │
+                    ┌─────────┼─────────┐
+                    │         │         │
+                  PASS     PARTIAL     FAIL
+                    │         │         │
+                    ▼         ▼         ▼
+                 交付完成  局部重试    全量重来
 ```
 
 ## 核心职责
@@ -96,9 +107,54 @@ Evaluator 以 **sub_agent** 方式执行，确保独立性：
 
 ### 3. 输出判决
 
-- PASS: 所有 AC 达成，附带证据
-- FAIL: 部分 AC 未达成，说明原因
+- PASS: 所有 AC 达成，无独立发现问题，附带证据
+- PARTIAL: 核心 AC 达成，但存在非阻塞问题或次要 AC 未达成
+- FAIL: 核心 AC 未达成，说明原因
 - BLOCKED: 存在阻塞，说明阻塞原因
+
+### 5. 判决后重试机制
+
+```yaml
+PASS:
+  动作: 交付完成，无需重试
+  Planner: 通知用户任务完成
+
+PARTIAL:
+  动作: 局部重试
+  流程:
+    1. Evaluator 输出 PARTIAL 判决 + 未达成项/独立发现
+    2. Planner 根据未达成项创建修复子任务
+    3. Specialist 执行修复（仅修改问题部分，不重做全部）
+    4. Evaluator 仅重判修复部分 + 验证无回归
+  约束:
+    - 最多重试 3 次，超过则升级为 FAIL
+    - 每次重试范围递减，只修上次遗留问题
+    - 重试时 Evaluator 必须验证修复部分 + 原有 PASS 部分无回归
+
+FAIL:
+  动作: 全量重来
+  流程:
+    1. Evaluator 输出 FAIL 判决 + 失败原因
+    2. Planner 重新分析需求，重新分解任务
+    3. Specialist 重新执行所有子任务
+    4. Evaluator 重新全量验证
+  约束:
+    - 最多全量重来 2 次，超过则升级为 BLOCKED
+    - 重来时 Planner 必须参考上次 FAIL 原因调整方案
+    - 重来不是简单重复，必须改变策略
+
+BLOCKED:
+  动作: 阻塞上报
+  流程:
+    1. Evaluator 输出 BLOCKED 判决 + 阻塞原因
+    2. Planner 上报用户，等待外部输入
+    3. 用户解除阻塞后，从当前阶段继续
+
+重试计数:
+  partial_retries: 0 → 3 (PARTIAL 重试次数)
+  fail_retries: 0 → 2 (FAIL 全量重来次数)
+  超限处理: PARTIAL 超3次 → FAIL, FAIL 超2次 → BLOCKED
+```
 
 ## 行为准则
 
@@ -480,12 +536,14 @@ Evaluator 以 **sub_agent** 方式执行，确保独立性：
 
 ```yaml
 好判决:
-  - 明确的 PASS/FAIL/BLOCKED
+  - 明确的 PASS/PARTIAL/FAIL/BLOCKED
   - 充分的证据支持
   - 清晰的未达成原因
+  - 独立发现标注严重级别
 
 坏判决:
   - 模糊的判断
   - 缺乏证据
   - 包含建议或帮助
+  - 只验证 AC，未独立发现问题
 ```
