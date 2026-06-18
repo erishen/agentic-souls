@@ -43,7 +43,10 @@ agentic-souls/
 │   ├── test-writing.md      # Test writing
 │   ├── api-development.md   # API development
 │   ├── frontend-development.md  # Frontend development
-│   └── database-ops.md      # Database operations
+│   ├── database-ops.md      # Database operations
+│   ├── wechat-data-extract.md   # WeChat data extraction
+│   ├── wechat-contact-match.md # WeChat contact matching & dedup
+│   └── wechat-sync-pipeline.md # WeChat data sync pipeline
 │
 ├── memories/                # Issue records and solutions
 │   ├── 001-campaign-workflow-issue.md
