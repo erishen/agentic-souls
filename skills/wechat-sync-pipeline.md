@@ -57,12 +57,22 @@ personal-crm 有两条独立管道，数据互不可见：
 
 | ChatMessage 字段 | ContactRecord 字段 | 转换规则 |
 |------------------|---------------------|----------|
-| `sent_at` (datetime) | `contact_date` (date) | 取 sent_at 的日期部分（Asia/Shanghai timezone） |
+| `sent_at` (datetime) | `contact_date` (date) | 取 sent_at 的日期部分。**注意 `wechat_sync.py` 当前实现取的是 UTC 日期，不是 Asia/Shanghai 日期** —— 因为脚本派生时循环用的是 `convert_sent_at_for_api` 转换后的 UTC 字符串（如 `"2025-06-19 09:20:00"`）。对上海时间 0:00–8:00 的消息，ContactRecord.contact_date 会比实际上海日期早一日 |
 | `msg_type` | `contact_type` | 固定为 "微信" |
 | `content` | `content` | 保留完整内容，不截断（注：schema 定义为"内容摘要"，但同步流水线写入完整内容，这是对现有字段的扩展使用，确保数据不丢失） |
 | `direction` | `direction` | 直接映射（sent/received/unknown） |
 | - | `mood` | 留空（mood 需人工判断或 AI 分析） |
 | - | `follow_up_date` | 留空（follow_up 需人工设置） |
+
+**ContactRecord.contact_date 时区修复**（推荐）：派生前把 sent_at 重新按上海时区解析一次，确保 contact_date 落在实际上海日期：
+
+```python
+from datetime import timezone, timedelta
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+# msg['sent_at'] 此刻是已转换的 UTC 字符串，如 "2025-06-19 09:20:00"
+sent_at_dt = datetime.fromisoformat(msg['sent_at']).replace(tzinfo=timezone.utc).astimezone(SHANGHAI_TZ)
+contact_date = sent_at_dt.date().isoformat()  # 上海日期
+```
 
 **同一天同一联系人的多条消息**：每条消息生成一条 ContactRecord（与现有管道 1 行为一致）。不合并为一条摘要，因为 Dashboard 的联系频率计算依赖每条记录的粒度。
 
@@ -211,6 +221,7 @@ import_record.total_messages = success_count
 4. **增量同步优先**：避免每次全量重新导入，只在缓存未命中时做全量
 5. **同步状态持久化**：last_sync_timestamp 存在 ChatImport 的 date_range_end 字段，下次增量同步从这里开始
 6. **partial 状态不阻塞后续**：单条失败不影响整体流程，下次增量同步继续正常工作
+7. **脚本侧预去重当前失效**（实测 2026-06-19）：`wechat_sync.py` 的 `get_last_sync_timestamp` 和 `sync_to_crm` 都调用了 `GET /api/chat/messages/{contact_id}`，但 `app/routers/chat.py` 在该路径只注册了 DELETE，没有 GET，返回 405。脚本用 `if resp.status_code == 200` 静默吞错，所以 `existing_keys` 永远是空集，脚本日志里"跳过 0 条重复"不可信 —— 真实去重靠 `/api/chat/import/{contact_id}` 内部按 `content + sent_at` 的去重兜底。修复方向：在 `chat.py` 增加 GET endpoint，或改脚本走其他查询路径
 
 ## 必须产出
 

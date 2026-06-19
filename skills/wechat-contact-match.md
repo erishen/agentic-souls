@@ -44,9 +44,32 @@ limitations:
    contact = db.query(Contact).filter(Contact.name == sender_name).first()
    ```
 
+   ⚠️ **副作用警告**（实测 2026-06-19 暴露）：`wechat_sync.py` 的 `build_match_map` 实际用的是 `contact.name == wxid or contact.name in wxid`，会把 wxid 字符串本身当作姓名去匹配。如果 CRM 里存在名字正好是 `wxid_xxx`、`wxid_me`、`wxid_test_friend` 这类字符串的联系人，所有同名的 wxid 都会被错配过去，且日志只显示"匹配成功 N 个"看不出异常。
+
+   **规避**：
+
+   - 导入前检查 `contacts` 表里是否有名字形如 `wxid_*` 的联系人，提前改名或删除
+   - 或在 name 降级匹配里加正则白名单，只匹配不以 `wxid_` 开头的姓名
+   - 真实导入优先保证联系人 `wechat_id` 字段已填，让精确匹配优先命中
+
 3. **未匹配处理**：两种选项，由调用者配置
-   - **选项 A：创建新联系人** — 自动创建一条 Contact 记录，wechat_id 设为 counterpart_wxid，name 设为 counterpart_wxid（后续可手动编辑）
+   - **选项 A：创建新联系人** — 自动创建一条 Contact 记录，wechat_id 设为 counterpart_wxid，name 设为 counterpart_wxid（后续需从微信 contact.db 同步真实姓名，见下方「联系人全量同步与改名」）
    - **选项 B：忽略** — 将该消息标记为 unmatched，不创建联系人，消息不写入
+
+### 联系人全量同步与改名（2026-06-19 新增）
+
+`--match-mode create_contact` 只在有聊天记录时创建联系人，会漏掉没怎么聊天的微信好友（实测 965 个好友只创建了 253 个）。完整方案需要两步：
+
+1. **全量同步联系人**：从解密的 `contact.db` 读 `local_type=1` 的真人好友，排除 `gh_*`/`@openim`/`@chatroom`/系统账号，按 `wechat_id` 去重后批量插入 CRM
+2. **改名**：从 `contact.db` 的 `remark`（备注名优先）或 `nick_name` 同步到 CRM 的 `name` 字段，替换掉 `wxid_*` 和 `@openim` 形式的名字
+
+详见 `wechat-import-personal-crm.md` 的「联系人全量同步」和「联系人改名」章节。
+
+### 重复联系人合并（2026-06-19 新增）
+
+`wechat_sync.py` 的 `create_contact` 函数没有先查 wechat_id 是否已存在，多次导入会产生重复联系人（实测 203 个重复）。合并策略：保留每个 wechat_id 下消息最多的 id，把重复 id 的 chat_messages 和 contact_records 转移到保留 id，然后删除重复联系人。
+
+详见 `wechat-import-personal-crm.md` 的「重复联系人合并」章节。
 
 ### 批量匹配优化
 
