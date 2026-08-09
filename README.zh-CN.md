@@ -286,6 +286,13 @@ Agentic Souls 可以与任何项目集成使用：
 
 - [Campaign 定义](docs/campaign.md)
 
+---
+
+## 相关文章
+
+- 中文: [文档即状态机：Agentic Souls 的 Markdown 工作流](https://erishen.cn/document-as-state-machine-agentic-souls-markdown-workflow/)
+- English: [Document as State Machine: Agentic Souls' Markdown Workflow](https://erishen.cn/document-as-state-machine-agentic-souls-markdown-workflow-en/)
+
 ## License
 
 MIT
