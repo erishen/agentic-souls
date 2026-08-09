@@ -289,9 +289,7 @@ Integration Options:
 ---
 
 ## Related Articles
-
-- English: [Document as State Machine: Agentic Souls' Markdown Workflow](https://erishen.cn/document-as-state-machine-agentic-souls-markdown-workflow-en/)
-- 中文: [文档即状态机：Agentic Souls 的 Markdown 工作流](https://erishen.cn/document-as-state-machine-agentic-souls-markdown-workflow/)
+- [Document as State Machine: How Agentic Souls Drives AI Software Development Workflows with Markdown](https://erishen.cn/document-as-state-machine-agentic-souls-markdown-workflow-en/)
 
 ## License
 
