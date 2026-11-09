@@ -293,4 +293,4 @@ Integration Options:
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
