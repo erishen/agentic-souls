@@ -293,4 +293,4 @@ Agentic Souls 可以与任何项目集成使用：
 
 ## License
 
-MIT
+MIT，见 [LICENSE](LICENSE)。
